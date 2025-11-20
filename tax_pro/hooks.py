@@ -26,7 +26,7 @@ app_license = "mit"
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/tax_pro/css/tax_pro.css"
-# app_include_js = "/assets/tax_pro/js/tax_pro.js"
+app_include_js = "/assets/tax_pro/js/taxes_and_totals_override.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/tax_pro/css/tax_pro.css"
@@ -43,7 +43,11 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {
+	"Sales Invoice": "public/js/sales_invoice.js",
+	"Sales Order": "public/js/sales_order.js",
+	"Quotation": "public/js/quotation.js"
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -83,7 +87,7 @@ app_license = "mit"
 # ------------
 
 # before_install = "tax_pro.install.before_install"
-# after_install = "tax_pro.install.after_install"
+after_install = "tax_pro.tax_pro.install.after_install"
 
 # Uninstallation
 # ------------
