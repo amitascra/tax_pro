@@ -31,6 +31,42 @@
 	// Add new method to calculate profit margin tax
 	erpnext.taxes_and_totals.prototype.get_profit_margin_tax_amount = function(item, tax_rate) {
 		console.log('=== TAX PRO DEBUG: get_profit_margin_tax_amount called ===');
+		
+		// Check if profit margin tax is enabled
+		var is_enabled = true;
+		frappe.call({
+			method: 'frappe.client.get_value',
+			args: {
+				doctype: 'Tax Pro Settings',
+				filters: {},
+				fieldname: 'enable_profit_margin_tax'
+			},
+			async: false,
+			callback: function(r) {
+				if (r.message && r.message.enable_profit_margin_tax !== undefined) {
+					is_enabled = r.message.enable_profit_margin_tax;
+					console.log('Tax Pro Settings - Feature enabled:', is_enabled);
+				}
+			}
+		});
+		
+		if (!is_enabled) {
+			frappe.msgprint({
+				title: __('Feature Disabled'),
+				indicator: 'red',
+				message: __('Profit Margin Tax feature is currently disabled. Please enable it in <b>Tax Pro Settings</b> to use this charge type.'),
+				primary_action: {
+					label: __('Open Settings'),
+					action: function() {
+						frappe.set_route('Form', 'Tax Pro Settings');
+					}
+				}
+			});
+			console.log('✗ Feature disabled - returning 0.0');
+			console.log('=== TAX PRO DEBUG END ===');
+			return 0.0;
+		}
+		
 		console.log('Item object:', item);
 		console.log('Item type:', typeof item);
 		console.log('Item keys:', Object.keys(item));

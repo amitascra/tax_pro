@@ -29,6 +29,15 @@ def patch_taxes_and_totals():
 		# Handle "On Profit Margin" charge type
 		if tax.charge_type == "On Profit Margin":
 			try:
+				# Check if profit margin tax is enabled
+				from tax_pro.tax_pro.doctype.tax_pro_settings.tax_pro_settings import is_profit_margin_tax_enabled
+				
+				if not is_profit_margin_tax_enabled():
+					frappe.throw(
+						msg="Profit Margin Tax feature is disabled. Please enable it in Tax Pro Settings.",
+						title="Feature Disabled"
+					)
+				
 				frappe.log_error(
 					message=f"Processing 'On Profit Margin' for item: {item.item_code if hasattr(item, 'item_code') else item}\nSerial No: {item.get('custom_vehicle_serial_no', 'NONE')}",
 					title="Tax Pro Debug - On Profit Margin Detected"
