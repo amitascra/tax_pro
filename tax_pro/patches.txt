@@ -4,8 +4,6 @@
 tax_pro.patches.v0_0.create_custom_fields
 tax_pro.patches.v0_0.update_charge_type_options
 tax_pro.patches.v0_0.setup_profit_margin_tax
-tax_pro.patches.v0_0.create_tax_pro_settings
 
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated
-tax_pro.patches.v0_0.add_feature_2_to_settings
