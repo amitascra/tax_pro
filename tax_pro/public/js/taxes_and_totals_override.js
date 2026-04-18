@@ -10,10 +10,14 @@
 	erpnext.taxes_and_totals.prototype.get_current_tax_amount = function(item, tax, item_tax_map) {
 		var tax_rate = this._get_tax_rate(tax, item_tax_map);
 		var current_tax_amount = 0.0;
+		var current_net_amount = 0.0;
 		
 		// Handle "On Profit Margin" charge type
 		if (tax.charge_type == "On Profit Margin") {
-			current_tax_amount = this.get_profit_margin_tax_amount(item, tax_rate);
+			// get_profit_margin_tax_amount returns [current_net_amount, current_tax_amount]
+			var result = this.get_profit_margin_tax_amount(item, tax_rate);
+			current_net_amount = result[0];
+			current_tax_amount = result[1];
 		}
 		// Handle all standard charge types
 		else {
@@ -25,7 +29,8 @@
 			this.set_item_wise_tax(item, tax, tax_rate, current_tax_amount);
 		}
 		
-		return current_tax_amount;
+		// Return [current_net_amount, current_tax_amount] as expected by ERPNext
+		return [current_net_amount, current_tax_amount];
 	};
 	
 	// Add new method to calculate profit margin tax
@@ -93,7 +98,8 @@
 			console.log('✓ Calculated tax on profit: ' + tax_rate + '% of ' + profit + ' = ' + tax_amount);
 			console.log('=== TAX PRO DEBUG END ===');
 			
-			return flt(tax_amount);
+			// Return [current_net_amount, current_tax_amount] as expected by ERPNext
+			return [flt(profit), flt(tax_amount)];
 		}
 		// Fallback to item_code method (backward compatibility)
 		else if (item.item_code) {
@@ -136,12 +142,13 @@
 			console.log('Calculated tax on profit (fallback): ' + tax_rate + '% of ' + total_profit + ' = ' + tax_amount);
 			console.log('=== TAX PRO DEBUG END ===');
 			
-			return flt(tax_amount);
+			// Return [current_net_amount, current_tax_amount] as expected by ERPNext
+			return [flt(total_profit), flt(tax_amount)];
 		}
 		else {
 			console.log('✗ ERROR: No serial_no or item_code found in item');
 			console.log('=== TAX PRO DEBUG END ===');
-			return 0.0;
+			return [0.0, 0.0];
 		}
 	};
 	
