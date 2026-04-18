@@ -21,21 +21,42 @@ def patch_taxes_and_totals():
 		tax_rate = self._get_tax_rate(tax, item_tax_map)
 		current_tax_amount = 0.0
 		
+		frappe.log_error(
+			message=f"Charge Type: {tax.charge_type}\nItem: {item.item_code if hasattr(item, 'item_code') else 'NO ITEM CODE'}\nSerial No Field: {item.get('custom_vehicle_serial_no', 'NOT FOUND')}\nTax Rate: {tax_rate}",
+			title="Tax Pro Debug - Backend Tax Calculation"
+		)
+		
 		# Handle "On Profit Margin" charge type
 		if tax.charge_type == "On Profit Margin":
 			try:
+				frappe.log_error(
+					message=f"Processing 'On Profit Margin' for item: {item.item_code if hasattr(item, 'item_code') else item}\nSerial No: {item.get('custom_vehicle_serial_no', 'NONE')}",
+					title="Tax Pro Debug - On Profit Margin Detected"
+				)
+				
 				from tax_pro.tax_pro.utils.serial_profit import calculate_item_profit_margin
 				
 				# Calculate profit margin for this item
 				item_profit = calculate_item_profit_margin(item)
 				
-				# Apply tax rate to profit margin
+				frappe.log_error(
+					message=f"Item Profit: {item_profit}, Tax Rate: {tax_rate}",
+					title="Tax Pro Debug - Profit Calculated"
+				)
+				
+				# Calculate tax on profit: tax_amount = profit * (tax_rate / 100)
+				# This becomes the actual tax that gets added to tax.tax_amount
 				current_tax_amount = (tax_rate / 100.0) * item_profit
 				current_tax_amount = flt(current_tax_amount)
 				
+				frappe.log_error(
+					message=f"Tax on profit ({tax_rate}% of {item_profit}): {current_tax_amount}",
+					title="Tax Pro Debug - Tax Amount"
+				)
+				
 			except Exception as e:
 				frappe.log_error(
-					message=f"Error calculating profit margin tax: {str(e)}\nItem: {item.name}",
+					message=f"Error calculating profit margin tax: {str(e)}\nItem: {item.name if hasattr(item, 'name') else item}\nTraceback: {frappe.get_traceback()}",
 					title="Profit Margin Tax Calculation Error"
 				)
 				current_tax_amount = 0.0
