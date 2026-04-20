@@ -141,11 +141,13 @@ after_install = "tax_pro.tax_pro.install.after_install"
 # ---------------
 # Hook on document methods and events
 
-doc_events = {
-	"Sales Invoice": {
-		"before_submit": "tax_pro.tax_pro.before_submit_fix_item_gst"
-	}
-}
+# doc_events = {
+# 	"*": {
+# 		"on_update": "method",
+# 		"on_cancel": "method",
+# 		"on_trash": "method"
+# 	}
+# }
 
 # Scheduled Tasks
 # ---------------
