@@ -50,6 +50,29 @@ def patch_taxes_and_totals():
 				current_tax_amount = flt(current_tax_amount)
 				current_net_amount = flt(item_profit)
 				
+				# Update item-level GST amount fields for India Compliance validation
+				# This ensures the item's GST amounts match what we calculated on profit margin
+				gst_tax_type = tax.get("gst_tax_type")
+				if gst_tax_type:
+					# Set the appropriate GST amount field on the item
+					# e.g., cgst_amount, sgst_amount, igst_amount
+					amount_field = f"{gst_tax_type}_amount"
+					if hasattr(item, amount_field):
+						setattr(item, amount_field, current_tax_amount)
+						frappe.log_error(
+							message=f"Set item.{amount_field} = {current_tax_amount}",
+							title="Tax Pro Debug - Item GST Amount Set"
+						)
+					
+					# Also update the taxable_value to profit margin for India Compliance
+					# This makes the validation pass: taxable_value * rate / 100 = tax_amount
+					if hasattr(item, 'taxable_value') and item_profit > 0:
+						item.taxable_value = item_profit
+						frappe.log_error(
+							message=f"Set item.taxable_value = {item_profit} (profit margin)",
+							title="Tax Pro Debug - Item Taxable Value Set"
+						)
+				
 				frappe.log_error(
 					message=f"Tax Pro Backend: Net Amount: {current_net_amount}, Tax Amount: {current_tax_amount}",
 					title="Tax Pro Debug - Tax Amount"
