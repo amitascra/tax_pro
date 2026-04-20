@@ -70,8 +70,8 @@ def patch_taxes_and_totals():
 		if not (self.doc.get("is_consolidated") or tax.get("dont_recompute_tax")):
 			self.set_item_wise_tax(item, tax, tax_rate, current_tax_amount)
 		
-		# Return [current_net_amount, current_tax_amount] as expected by ERPNext
-		return [current_net_amount, current_tax_amount]
+		# Return only current_tax_amount (Python backend doesn't use destructuring like JS)
+		return current_tax_amount
 	
 	# Replace the method
 	taxes_and_totals.calculate_taxes_and_totals.get_current_tax_amount = custom_get_current_tax_amount
