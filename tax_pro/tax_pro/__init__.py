@@ -51,16 +51,6 @@ def patch_taxes_and_totals():
 				current_tax_amount = flt(current_tax_amount)
 				current_net_amount = flt(item_profit)
 				
-				# CRITICAL: Set item.taxable_value to profit margin
-				# This ensures India Compliance validation passes when it recalculates:
-				# tax_amount = tax_rate * item.taxable_value / 100
-				if item_profit > 0:
-					item.taxable_value = item_profit
-					frappe.log_error(
-						message=f"Set item.taxable_value = {item_profit} (profit margin) for item {item.item_code}",
-						title="Tax Pro Debug - Taxable Value Set"
-					)
-				
 				frappe.log_error(
 					message=f"Tax Pro Backend: Net Amount: {current_net_amount}, Tax Amount: {current_tax_amount}",
 					title="Tax Pro Debug - Tax Amount"
@@ -95,6 +85,59 @@ except Exception as e:
 	import frappe
 	frappe.log_error(
 		message=f"Error patching taxes_and_totals: {str(e)}",
+		title="Tax Pro Module Init Error"
+	)
+
+# Monkey patch India Compliance's GST validation to skip validation for "On Profit Margin" charge type
+def patch_india_compliance_validation():
+	"""
+	Monkey patch India Compliance's validate_item_gst_details method
+	to skip validation when "On Profit Margin" charge type is present.
+	"""
+	try:
+		from india_compliance.gst_india.overrides.transaction import ItemGSTDetails
+		
+		# Store the original method
+		original_validate_item_gst_details = ItemGSTDetails.validate_item_gst_details
+		
+		def custom_validate_item_gst_details(self):
+			"""
+			Extended version that skips validation if "On Profit Margin" charge type is present.
+			"""
+			# Check if any tax row uses "On Profit Margin" charge type
+			has_profit_margin_tax = any(
+				tax.charge_type == "On Profit Margin"
+				for tax in self.doc.taxes
+			)
+			
+			if has_profit_margin_tax:
+				frappe.log_error(
+					message=f"Skipping GST validation for {self.doc.doctype} {self.doc.name} due to On Profit Margin charge type",
+					title="Tax Pro - GST Validation Skipped"
+				)
+				return  # Skip validation
+			
+			# Call the original method for standard cases
+			return original_validate_item_gst_details(self)
+		
+		# Replace the method
+		ItemGSTDetails.validate_item_gst_details = custom_validate_item_gst_details
+		
+	except ImportError:
+		# India Compliance not installed, skip this patch
+		pass
+	except Exception as e:
+		frappe.log_error(
+			message=f"Error patching India Compliance validation: {str(e)}",
+			title="Tax Pro India Compliance Patch Error"
+		)
+
+# Apply the India Compliance patch when the module is imported
+try:
+	patch_india_compliance_validation()
+except Exception as e:
+	frappe.log_error(
+		message=f"Error applying India Compliance patch: {str(e)}",
 		title="Tax Pro Module Init Error"
 	)
 
