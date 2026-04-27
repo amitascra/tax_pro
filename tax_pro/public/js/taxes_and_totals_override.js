@@ -29,8 +29,8 @@
 			this.set_item_wise_tax(item, tax, tax_rate, current_tax_amount);
 		}
 		
-		// Return [current_net_amount, current_tax_amount] as expected by ERPNext
-		return [current_net_amount, current_tax_amount];
+		// Return only current_tax_amount (single value) as expected by ERPNext
+		return current_tax_amount;
 	};
 	
 	// Add new method to calculate profit margin tax
@@ -98,7 +98,7 @@
 			console.log('✓ Calculated tax on profit: ' + tax_rate + '% of ' + profit + ' = ' + tax_amount);
 			console.log('=== TAX PRO DEBUG END ===');
 			
-			// Return [current_net_amount, current_tax_amount] as expected by ERPNext
+			// Return [current_net_amount, current_tax_amount] for internal use
 			return [flt(profit), flt(tax_amount)];
 		}
 		// Fallback to item_code method (backward compatibility)
@@ -142,7 +142,7 @@
 			console.log('Calculated tax on profit (fallback): ' + tax_rate + '% of ' + total_profit + ' = ' + tax_amount);
 			console.log('=== TAX PRO DEBUG END ===');
 			
-			// Return [current_net_amount, current_tax_amount] as expected by ERPNext
+			// Return [current_net_amount, current_tax_amount] for internal use
 			return [flt(total_profit), flt(tax_amount)];
 		}
 		else {
