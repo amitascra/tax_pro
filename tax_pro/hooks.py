@@ -1,7 +1,7 @@
 app_name = "tax_pro"
 app_title = "Tax Pro"
 app_publisher = "Amit Kumar"
-app_description = "custom taxation solutions"
+app_description = "On Profit Taxation Solutions"
 app_email = "amit@ascratech.com"
 app_license = "mit"
 
