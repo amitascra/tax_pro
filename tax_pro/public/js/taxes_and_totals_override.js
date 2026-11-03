@@ -29,8 +29,8 @@
 			this.set_item_wise_tax(item, tax, tax_rate, current_tax_amount);
 		}
 		
-		// Return only current_tax_amount (single value) as expected by ERPNext
-		return current_tax_amount;
+		// Return [current_net_amount, current_tax_amount] as expected by ERPNext JS destructuring
+		return [current_net_amount, current_tax_amount];
 	};
 	
 	// Add new method to calculate profit margin tax
